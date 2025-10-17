@@ -1,14 +1,17 @@
-#!/usr/bin/with-contenv bashio
+#!/bin/sh
+set -e
 
-bashio::log.info "Starting Audio State Monitor..."
+CONFIG_PATH=/data/options.json
 
-# Read configuration
-AUDIO_DEVICE=$(bashio::config 'audio_device')
-SCAN_INTERVAL=$(bashio::config 'scan_interval')
-EVENT_NAME=$(bashio::config 'event_name')
+echo "[INFO] Starting Audio State Monitor..."
 
-bashio::log.info "Monitoring device: ${AUDIO_DEVICE}"
-bashio::log.info "Scan interval: ${SCAN_INTERVAL} seconds"
+# Read configuration from options.json
+AUDIO_DEVICE=$(jq -r '.audio_device' $CONFIG_PATH)
+SCAN_INTERVAL=$(jq -r '.scan_interval' $CONFIG_PATH)
+EVENT_NAME=$(jq -r '.event_name' $CONFIG_PATH)
+
+echo "[INFO] Monitoring device: ${AUDIO_DEVICE}"
+echo "[INFO] Scan interval: ${SCAN_INTERVAL} seconds"
 
 # Set environment variables for the Python script
 export AUDIO_DEVICE
