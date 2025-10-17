@@ -1,0 +1,21 @@
+name: Audio State Monitor
+version: "1.0.0"
+slug: audio_state_monitor
+description: Monitors PulseAudio state and exposes it to Home Assistant
+arch:
+  - amd64
+  - aarch64
+  - armv7
+  - armhf
+startup: application
+boot: auto
+hassio_api: true
+audio: true
+options:
+  audio_device: "alsa_output.usb-Soundcraft_Notepad-12FX-00.analog-surround-40"
+  scan_interval: 3
+  event_name: "audio_state_changed"
+schema:
+  audio_device: str
+  scan_interval: int(1,30)
+  event_name: str
