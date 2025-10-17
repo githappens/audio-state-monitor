@@ -6,13 +6,14 @@ RUN apk add --no-cache \
     python3 \
     py3-pip \
     py3-requests \
-    pulseaudio-utils \
-    bash
+    pulseaudio-utils
 
-# Copy files
-COPY run.sh /
+# Copy monitor script
 COPY monitor.py /
 
-RUN chmod a+x /run.sh /monitor.py
+# Copy rootfs
+COPY rootfs /
 
-CMD [ "/run.sh" ]
+RUN chmod a+x /monitor.py \
+    /etc/services.d/monitor/run \
+    /etc/services.d/monitor/finish
