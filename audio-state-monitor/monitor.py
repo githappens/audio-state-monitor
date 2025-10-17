@@ -13,7 +13,12 @@ logger = logging.getLogger(__name__)
 AUDIO_DEVICE = os.environ.get('AUDIO_DEVICE')
 SCAN_INTERVAL = int(os.environ.get('SCAN_INTERVAL', 3))
 EVENT_NAME = os.environ.get('EVENT_NAME', 'audio_state_changed')
-SUPERVISOR_TOKEN = os.environ.get('SUPERVISOR_TOKEN')
+SUPERVISOR_TOKEN = os.environ.get('SUPERVISOR_TOKEN', '')
+
+# Try to read token from file if not in environment
+if not SUPERVISOR_TOKEN and os.path.exists('/run/secrets/SUPERVISOR_TOKEN'):
+    with open('/run/secrets/SUPERVISOR_TOKEN', 'r') as f:
+        SUPERVISOR_TOKEN = f.read().strip()
 
 # Supervisor API endpoint
 SUPERVISOR_API = "http://supervisor/core/api/events/" + EVENT_NAME
@@ -60,6 +65,10 @@ def fire_event(state):
     Fire a Home Assistant event via the Supervisor API.
     """
     try:
+        if not SUPERVISOR_TOKEN:
+            logger.error("SUPERVISOR_TOKEN is missing!")
+            return
+
         headers = {
             'Authorization': f'Bearer {SUPERVISOR_TOKEN}',
             'Content-Type': 'application/json'
@@ -70,6 +79,7 @@ def fire_event(state):
             'device': AUDIO_DEVICE
         }
 
+        logger.debug(f"Firing event to: {SUPERVISOR_API}")
         response = requests.post(
             SUPERVISOR_API,
             json=data,
@@ -78,9 +88,9 @@ def fire_event(state):
         )
 
         if response.status_code == 200:
-            logger.debug(f"Event fired: {state}")
+            logger.info(f"Event fired successfully: {state}")
         else:
-            logger.error(f"Failed to fire event: {response.status_code}")
+            logger.error(f"Failed to fire event: {response.status_code} - {response.text}")
 
     except Exception as e:
         logger.error(f"Error firing event: {e}")
