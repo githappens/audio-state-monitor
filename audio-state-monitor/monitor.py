@@ -20,8 +20,8 @@ if not SUPERVISOR_TOKEN and os.path.exists('/run/secrets/SUPERVISOR_TOKEN'):
     with open('/run/secrets/SUPERVISOR_TOKEN', 'r') as f:
         SUPERVISOR_TOKEN = f.read().strip()
 
-# Supervisor service call API endpoint
-SUPERVISOR_SERVICE_API = "http://supervisor/core/api/services/event/fire"
+# Home Assistant Core API endpoint for firing events
+EVENT_API_URL = f"http://supervisor/core/api/events/{os.environ.get('EVENT_NAME', 'audio_state_changed')}"
 
 def get_audio_state():
     """
@@ -62,7 +62,7 @@ def get_audio_state():
 
 def fire_event(state):
     """
-    Fire a Home Assistant event via the Supervisor API using service call.
+    Fire a Home Assistant event via the Core API.
     """
     try:
         if not SUPERVISOR_TOKEN:
@@ -74,18 +74,15 @@ def fire_event(state):
             'Content-Type': 'application/json'
         }
 
-        # Use service call to fire event
+        # Event data payload
         data = {
-            'event_type': EVENT_NAME,
-            'event_data': {
-                'state': state,
-                'device': AUDIO_DEVICE
-            }
+            'state': state,
+            'device': AUDIO_DEVICE
         }
 
-        logger.debug(f"Firing event via service call: {EVENT_NAME}")
+        logger.debug(f"Firing event: {EVENT_NAME}")
         response = requests.post(
-            SUPERVISOR_SERVICE_API,
+            EVENT_API_URL,
             json=data,
             headers=headers,
             timeout=5
