@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bashio
+#!/usr/bin/env bashio
 
 # Read configuration
 AUDIO_DEVICE=$(bashio::config 'audio_device')
@@ -16,4 +16,4 @@ export EVENT_NAME
 export SUPERVISOR_TOKEN
 
 # Run the monitor
-python3 /monitor.py
+exec python3 /monitor.py
